@@ -1,0 +1,581 @@
+var contactModal = document.getElementById("contactModal");
+var modalBackdrop = document.getElementById("modalBackdrop");
+var openBtn = document.getElementById("addBtn");
+var closeBtn = document.getElementById("closeBtn");
+var cancelBtn = document.getElementById("cancelBtn");
+var contactForm = document.getElementById("contactForm");
+var contactsGrid = document.getElementById("contacts-grid");
+
+var contactName = document.getElementById("contactName");
+var contactPhone = document.getElementById("contactPhone");
+var contactEmail = document.getElementById("contactEmail");
+var contactAddress = document.getElementById("contactAddress");
+var contactGroup = document.getElementById("contactGroup");
+var contactNotes = document.getElementById("contactNotes");
+var contactFavorite = document.getElementById("contactFavorite");
+var contactEmergency = document.getElementById("contactEmergency");
+var contactImage = document.getElementById("contactImage");
+var nameError = document.getElementById("contactNameError");
+var phoneError = document.getElementById("contactPhoneError");
+var emailError = document.getElementById("contactEmailError");
+
+var nameRegex = /^[A-Za-z][A-Za-z\s]{1,}$/;
+var phoneRegex = /^(?:\+20|20|0020|0)(10|11|12|15)\d{8}$/;
+var emailRegex = /^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/;
+
+var gradientClasses = [
+  "gradient-color-0",
+  "gradient-color-1",
+  "gradient-color-2",
+  "gradient-color-3",
+  "gradient-color-4",
+  "gradient-color-5",
+  "gradient-color-6",
+  "gradient-color-7",
+];
+
+var currentIndex;
+var contactsList = [];
+if (localStorage.getItem("contactsList")) {
+  contactsList = JSON.parse(localStorage.getItem("contactsList"));
+  displayContacts();
+}
+function checkContacts() {
+  var html = "";
+  if (contactsList.length < 1) {
+    html += `
+    <div class="w-100 text-center py-5">
+                <div class="mb-4 bg-secondary-subtle mx-auto p-3 rounded-4 fit-content">
+                    <i class="fa-solid fa-address-book fs-1 text-secondary"></i>
+                </div>
+                <p class="text-muted m-0">No contacts found</p>
+                <p class="text-secondary">Click "Add Contact" to get started</p>
+            </div>
+    `;
+    contactsGrid.innerHTML = html;
+    document.getElementById("totalValue").textContent = contactsList.length;
+    displayFavorites();
+    displayEmergency();
+  } else {
+    displayContacts();
+  }
+}
+checkContacts();
+
+function displayContacts() {
+  displayFavorites();
+  displayEmergency();
+  document.getElementById("contactsNumber").textContent = contactsList.length;
+  document.getElementById("totalValue").textContent = contactsList.length;
+  var searchInput = document.getElementById("searchInput").value;
+  var html = ``;
+  for (var i = 0; i < contactsList.length; i++) {
+    if (
+      contactsList[i].name.toLowerCase().includes(searchInput.toLowerCase()) ||
+      contactsList[i].phone.includes(searchInput.toLowerCase()) ||
+      (contactsList[i].email &&
+        contactsList[i].email.toLowerCase().includes(searchInput.toLowerCase()))
+    ) {
+      var favoriteBtn = contactsList[i].isFavorite
+        ? `<button class="action-btn bg-transparent rounded-3 favorites-btn favorites-selected" onclick="toggleFavorites(${i})">
+          <i class="fa-solid fa-star text-warning"></i>
+        </button>`
+        : `<button class="action-btn bg-transparent rounded-3 favorites-btn" onclick="toggleFavorites(${i})">
+          <i class="fa-regular fa-star small text-muted"></i>
+        </button>`;
+
+      var emergencyBtn = contactsList[i].isEmergency
+        ? `<button class="action-btn bg-transparent rounded-3 emergency-btn emergency-selected" onclick="toggleEmergency(${i})">
+          <i class="fa-solid fa-heart-pulse text-danger"></i>
+        </button>`
+        : `<button class="action-btn bg-transparent rounded-3 emergency-btn" onclick="toggleEmergency(${i})">
+          <i class="fa-regular fa-heart small text-muted"></i>
+        </button>`;
+
+      var favoriteBadge = contactsList[i].isFavorite
+        ? `<div class="fav-badge rounded-circle p-2 bg-warning d-flex justify-content-center align-items-center">
+            <i class="fa-solid fa-star text-white"></i>
+           </div>`
+        : "";
+
+      var emergencyBadge = contactsList[i].isEmergency
+        ? `<div class="emer-badge rounded-circle p-2 bg-danger d-flex justify-content-center align-items-center">
+            <i class="fa-solid fa-heart-pulse text-white"></i>
+           </div>`
+        : "";
+
+      var emailSection = contactsList[i].email
+        ? `<div class="d-flex align-items-center gap-2 mb-2">
+            <div class="card-icon email-icon rounded-3 d-flex justify-content-center align-items-center">
+                <i class="fa-solid fa-envelope small"></i>
+            </div>
+            <span class="text-muted small">${contactsList[i].email}</span>
+           </div>`
+        : "";
+
+      var addressSection = contactsList[i].address
+        ? `<div class="d-flex align-items-center gap-2">
+            <div class="card-icon location-icon rounded-3 d-flex justify-content-center align-items-center">
+                <i class="fa-solid fa-location-dot small"></i>
+            </div>
+            <span class="text-muted small">${contactsList[i].address}</span>
+           </div>`
+        : "";
+
+      var groupTag = contactsList[i].group
+        ? `<span class="tag ${contactsList[
+            i
+          ].group.toLowerCase()}-tag">${contactsList[
+            i
+          ].group.toUpperCase()}</span>`
+        : "";
+
+      var emergencyTag = contactsList[i].isEmergency
+        ? `<span class="tag emergency-tag">
+            <i class="fa-solid fa-heart-pulse text-danger me-1"></i>Emergency
+           </span>`
+        : "";
+
+      var emailButton = contactsList[i].email
+        ? `<a class="action-btn email-btn d-flex justify-content-center align-items-center rounded-3"
+           href="mailto:${contactsList[i].email}" onclick="event.stopPropagation();">
+            <i class="fa-solid fa-envelope small"></i>
+           </a>`
+        : "";
+      html += `
+      <div class="col">
+  <div
+    class="contact-card card h-100 d-flex flex-column rounded-4 shadow-sm overflow-hidden"
+  >
+    <div class="card-body">
+      <div class="d-flex align-items-start gap-3">
+        <div class="position-relative">
+          <div class="avatar-gradient ${
+            contactsList[i].gradient
+          } overflow-hidden">
+          ${
+            contactsList[i].image
+              ? `<img src="${contactsList[i].image}" class="w-100 h-100 object-fit-cover" />`
+              : contactsList[i].avatar
+          }
+          </div>
+          ${favoriteBadge}
+          ${emergencyBadge}
+          
+        </div>
+
+        <div>
+          <h5 class="fw-bold mb-2">${contactsList[i].name}</h5>
+
+          <div class="d-flex align-items-center gap-2">
+            <div
+              class="card-icon phone-icon rounded-2 d-flex align-items-center justify-content-center"
+            >
+              <i class="fa-solid fa-phone small"></i>
+            </div>
+            <span class="text-muted small"> ${contactsList[i].phone} </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-3">
+        ${emailSection}
+
+        ${addressSection}
+      </div>
+
+      <div class="mt-3">
+        ${groupTag}
+        ${emergencyTag}
+      </div>
+    </div>
+
+    <div
+      class="card-footer bg-light border-top d-flex justify-content-between p-3"
+    >
+      <div class="d-flex gap-3">
+        <a
+          href="tel:${contactsList[i].phone}"
+          class="action-btn phone-btn rounded-3 d-flex justify-content-center align-items-center"
+        >
+          <i class="fa-solid fa-phone small"></i>
+        </a>
+        ${emailButton}
+      </div>
+      <div class="d-flex gap-3">
+        ${favoriteBtn}
+        ${emergencyBtn}
+        <button class="action-btn bg-transparent rounded-3 edit-btn" onclick="setUpFields(${i})">
+          <i class="fa-solid fa-pen small text-muted"></i>
+        </button>
+        <button class="action-btn rounded-3 bg-transparent delete-btn" onclick="deleteContact(${i})">
+          <i class="fa-solid fa-trash small text-muted"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+      `;
+    }
+  }
+  contactsGrid.innerHTML = html;
+}
+function displayFavorites() {
+  var favoritesContainer = document.getElementById("favoritesContainer");
+  var favoritesNumber = 0;
+  var favoriteshtml = "";
+  var favorites = contactsList.filter((contact) => contact.isFavorite);
+  if (favorites.length == 0) {
+    favoritesContainer.classList.remove("fit-height");
+    document.getElementById("favoritesValue").textContent = favoritesNumber;
+    favoritesContainer.innerHTML = `
+    <div class="h-100 d-flex justify-content-center align-items-center">
+  <p class="text-secondary">No favorites yet</p>
+</div>`;
+    return;
+  }
+  for (var i = 0; i < favorites.length; i++) {
+    favoritesNumber++;
+    favoriteshtml += `
+    <div
+                class="d-flex align-items-center gap-3 p-2 bg-light rounded-3 contact-item favorites-card mb-2 "
+              >
+                <div>
+                  <div
+                    class="d-flex align-items-center justify-content-center rounded-3 shadow-sm text-white fw-bold contact-avatar overflow-hidden ${
+                      favorites[i].gradient
+                    }"
+                  >
+                    ${
+                      favorites[i].image
+                        ? `<img src="${favorites[i].image}" class="w-100 h-100 object-fit-cover" />`
+                        : favorites[i].avatar
+                    }
+                  </div>
+                </div>
+
+                <div class="flex-grow-1">
+                  <h4 class="fw-bold small mb-0">${favorites[i].name}</h4>
+                  <p class="text-muted mb-0 small">${favorites[i].phone}</p>
+                </div>
+
+                <a
+                  href="tel:${favorites[i].phone}"
+                  class="d-flex align-items-center justify-content-center rounded-3 call-btn"
+                >
+                  <i class="fa-solid fa-phone small"></i>
+                </a>
+              </div>
+    `;
+  }
+  favoritesContainer.innerHTML = favoriteshtml;
+  favoritesContainer.classList.add("fit-height");
+  document.getElementById("favoritesValue").textContent = favoritesNumber;
+}
+
+function displayEmergency() {
+  var emergencyContainer = document.getElementById("emergencyContainer");
+  var emergencyNumber = 0;
+  var emergencyhtml = "";
+  var emergency = contactsList.filter((contact) => contact.isEmergency);
+  if (emergency.length == 0) {
+    emergencyContainer.classList.remove("fit-height");
+    document.getElementById("emergencyValue").textContent = emergencyNumber;
+    emergencyContainer.innerHTML = `
+    <div class="h-100 d-flex justify-content-center align-items-center">
+  <p class="text-secondary">No emergency contacts</p>
+</div>`;
+    return;
+  }
+  for (var i = 0; i < emergency.length; i++) {
+    emergencyNumber++;
+    emergencyhtml += `
+    <div
+                class="d-flex align-items-center gap-3 p-2 bg-light rounded-3 contact-item emergency-card mb-2 "
+              >
+                <div>
+                  <div
+                    class="d-flex align-items-center justify-content-center rounded-3 shadow-sm text-white fw-bold contact-avatar overflow-hidden ${
+                      emergency[i].gradient
+                    }"
+                  >
+                    ${
+                      emergency[i].image
+                        ? `<img src="${emergency[i].image}" class="w-100 h-100 object-fit-cover" />`
+                        : emergency[i].avatar
+                    }
+                  </div>
+                </div>
+                <div class="flex-grow-1">
+                  <h4 class="fw-bold small mb-0">${emergency[i].name}</h4>
+                  <p class="text-muted mb-0 small">${emergency[i].phone}</p>
+                </div>
+
+                <a
+                  href="tel:${emergency[i].phone}"
+                  class="d-flex align-items-center justify-content-center rounded-3 call-btn"
+                >
+                  <i class="fa-solid fa-phone small"></i>
+                </a>
+              </div>
+    `;
+  }
+  emergencyContainer.innerHTML = emergencyhtml;
+  emergencyContainer.classList.add("fit-height");
+  document.getElementById("emergencyValue").textContent = emergencyNumber;
+}
+function saveContact(term) {
+  contactImage = document.getElementById("imageInput");
+
+  var name = contactName.value;
+  var phone = contactPhone.value;
+  var email = contactEmail.value;
+  var address = contactAddress.value;
+  var notes = contactNotes.value;
+  var group = contactGroup.value;
+  var isFavorite = contactFavorite.checked;
+  var isEmergency = contactEmergency.checked;
+  var avatar = setAvatar(name);
+  var randomGradient =
+  term === "update"
+    ? contactsList[currentIndex].gradient
+    : gradientClasses[Math.floor(Math.random() * gradientClasses.length)];
+
+
+  var imagePath;
+  if (contactImage.files && contactImage.files.length > 0) {
+    imagePath = `images/${contactImage.files[0].name}`;
+  } else if (term === "update") {
+    imagePath = contactsList[currentIndex].image;
+  }
+
+  var contact = {
+    name: name,
+    phone: phone,
+    email: email,
+    address: address,
+    notes: notes,
+    group: group,
+    avatar: avatar,
+    image: imagePath,
+    isFavorite: isFavorite,
+    isEmergency: isEmergency,
+    gradient: randomGradient,
+  };
+  if (!name || name === "") {
+    Swal.fire({
+      icon: "error",
+      title: "Missing Name",
+      text: "Please enter a name for the contact",
+      timer: 2000,
+      confirmButtonColor: "#7c3aed",
+    });
+    validateName();
+    return;
+  }
+
+  if (!phone || phone === "") {
+    Swal.fire({
+      icon: "error",
+      title: "Missing Phone",
+      text: "Please enter a phone number for the contact",
+      timer: 2000,
+      confirmButtonColor: "#7c3aed",
+    });
+    validatePhone();
+    return;
+  }
+  if (!validateName() || !validatePhone() || !validateEmail()) {
+    Swal.fire({
+      icon: "error",
+      title: "Validation Error",
+      text: "Please fix the errors in the form before saving.",
+      timer: 1000,
+      confirmButtonColor: "#7c3aed",
+    });
+    return;
+  }
+  if (!checkPhone(phone)) {
+  Swal.fire({
+    icon: "error",
+    title: "Duplicate Phone Number",
+    text: "This phone number already exists in your contacts.",
+    timer: 2000,
+    confirmButtonColor: "#7c3aed",
+  });
+  showError(contactPhone, phoneError);
+  return;
+}
+
+  term == "add"
+    ? contactsList.push(contact)
+    : contactsList.splice(currentIndex, 1, contact);
+  localStorage.setItem("contactsList", JSON.stringify(contactsList));
+  displayContacts();
+  closeModal();
+  if (term == "add") {
+    Swal.fire({
+      icon: "success",
+      title: "Contact Added!",
+      text: `${name} has been added to your contacts.`,
+      timer: 1500,
+      showConfirmButton: false,
+    });
+  } else if(term == 'update') {
+    console.log('done');
+    Swal.fire({
+      title: "Contact Updated!",
+      text: `${name} has been updated successfully.`,
+      icon: "success",
+      timer: 1500,
+      showConfirmButton: false,
+    });
+  }
+}
+function checkPhone(phone) {
+  return !contactsList.some((contact, index) => {
+    if (currentIndex !== undefined && index === currentIndex) return false;
+    return contact.phone === phone;
+  });
+}
+
+function validateName() {
+  const value = contactName.value.trim();
+
+  if (!nameRegex.test(value)) {
+    showError(contactName, nameError);
+    return false;
+  }
+  hideError(contactName, nameError);
+  return true;
+}
+
+function validatePhone() {
+  const value = contactPhone.value.trim();
+
+  if (!phoneRegex.test(value)) {
+    showError(contactPhone, phoneError);
+    return false;
+  }
+  hideError(contactPhone, phoneError);
+  return true;
+}
+
+function validateEmail() {
+  const value = contactEmail.value.trim();
+
+  if (value !== "" && !emailRegex.test(value)) {
+    showError(contactEmail, emailError);
+    return false;
+  }
+  hideError(contactEmail, emailError);
+  return true;
+}
+
+function showError(input, errorText) {
+  input.classList.add("input-error");
+  errorText.classList.remove("d-none");
+}
+
+function hideError(input, errorText) {
+  input.classList.remove("input-error");
+  errorText.classList.add("d-none");
+}
+
+contactName.addEventListener("input", validateName);
+contactPhone.addEventListener("input", validatePhone);
+contactEmail.addEventListener("input", validateEmail);
+
+contactName.addEventListener("blur", validateName);
+contactPhone.addEventListener("blur", validatePhone);
+contactEmail.addEventListener("blur", validateEmail);
+
+function setAvatar(name) {
+  var words = name.trim().split(" ");
+  if (words.length == 1) avatar = words[0][0];
+  else avatar = words[0][0] + words[words.length - 1][0];
+  return avatar;
+}
+function deleteContact(index) {
+  Swal.fire({
+    title: "Delete Contact?",
+    html: `Are you sure you want to delete <strong>${contactsList[index].name}</strong>?<br>This action cannot be undone.`,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#dc2626",
+    cancelButtonColor: "#6b7280",
+    confirmButtonText: "Yes, delete it!",
+    cancelButtonText: "Cancel",
+    reverseButtons: true,
+  }).then((result) => {
+    if (result.isConfirmed) {
+      contactsList.splice(index, 1);
+      localStorage.setItem("contactsList", JSON.stringify(contactsList));
+      checkContacts();
+      Swal.fire({
+        icon: "success",
+        title: "Deleted!",
+        text: "Contact has been deleted.",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    }
+  });
+}
+
+function setUpFields(index) {
+  var updateBtn = `<button
+                  type="button"
+                  id="saveBtn"
+                  onclick="saveContact('update')"
+                  class="col btn save-button rounded-4 p-3 text-white fw-bold"
+                >
+                  <i class="fa-solid fa-check me-2"></i>Save Contact
+                </button>`;
+  currentIndex = index;
+  openModal();
+  if (contactsList[index].image) {
+    document.getElementById(
+      "imagePreview"
+    ).innerHTML = `<img src="${contactsList[index].image}" class="w-100 h-100 object-fit-cover" />`;
+  }
+  contactName.value = contactsList[index].name;
+  contactPhone.value = contactsList[index].phone;
+  contactEmail.value = contactsList[index].email;
+  contactAddress.value = contactsList[index].address;
+  contactNotes.value = contactsList[index].notes;
+  contactGroup.value = contactsList[index].group;
+  contactFavorite.checked = contactsList[index].isFavorite;
+  contactEmergency.checked = contactsList[index].isEmergency;
+  document.getElementById("modalTitle").textContent = "Update Contact";
+  document.getElementById("saveBtn").outerHTML = updateBtn;
+}
+
+function toggleFavorites(index) {
+  contactsList[index].isFavorite = !contactsList[index].isFavorite;
+  localStorage.setItem("contactsList", JSON.stringify(contactsList));
+  displayContacts();
+}
+function toggleEmergency(index) {
+  contactsList[index].isEmergency = !contactsList[index].isEmergency;
+  localStorage.setItem("contactsList", JSON.stringify(contactsList));
+  displayContacts();
+}
+function openModal() {
+  contactModal.classList.remove("d-none");
+
+  contactForm.reset();
+  document.getElementById("modalTitle").textContent = "Add New Contact";
+  document.getElementById(
+    "imagePreview"
+  ).innerHTML = `<i class="fa-solid fa-user fs-2"></i>`;
+}
+
+function closeModal() {
+  contactModal.classList.add("d-none");
+}
+
+openBtn.addEventListener("click", openModal);
+closeBtn.addEventListener("click", closeModal);
+cancelBtn.addEventListener("click", closeModal);
+modalBackdrop.addEventListener("click", closeModal);
