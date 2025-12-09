@@ -22,6 +22,7 @@ var nameError = document.querySelector("#contactNameError");
 var phoneError = document.querySelector("#contactPhoneError");
 var emailError = document.querySelector("#contactEmailError");
 var mode ;
+var currentIndex;
 
 var nameRegex = /^[A-Za-z][A-Za-z\s]{1,}$/;
 var phoneRegex = /^(?:\+20|20|0020|0)(10|11|12|15)\d{8}$/;
@@ -38,7 +39,6 @@ var gradientClasses = [
   "gradient-color-7",
 ];
 
-var currentIndex;
 var contactsList = [];
 if (localStorage.getItem("contactsList")) {
   contactsList = JSON.parse(localStorage.getItem("contactsList"));
@@ -60,9 +60,7 @@ modalBackdrop.addEventListener("click", closeModal);
 contactName.addEventListener("input", validateName);
 contactPhone.addEventListener("input", validatePhone);
 contactEmail.addEventListener("input", validateEmail);
-saveBtn.addEventListener("click",function(){
-  saveContact(mode);
-});
+saveBtn.addEventListener("click",function(){saveContact(mode);});
 searchInput.addEventListener("input",displayContacts);
 contactsGrid.addEventListener("click", function(e){
   var editBtn = e.target.closest(".edit-btn");
