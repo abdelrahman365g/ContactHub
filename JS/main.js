@@ -5,6 +5,9 @@ var closeBtn = document.getElementById("closeBtn");
 var cancelBtn = document.getElementById("cancelBtn");
 var contactForm = document.getElementById("contactForm");
 var contactsGrid = document.getElementById("contacts-grid");
+var saveBtn = document.querySelector("#saveBtn");
+var searchInput = document.getElementById("searchInput");
+var imagePreview = document.getElementById("imagePreview");
 
 var contactName = document.getElementById("contactName");
 var contactPhone = document.getElementById("contactPhone");
@@ -18,6 +21,7 @@ var contactImage = document.getElementById("contactImage");
 var nameError = document.getElementById("contactNameError");
 var phoneError = document.getElementById("contactPhoneError");
 var emailError = document.getElementById("contactEmailError");
+var mode ;
 
 var nameRegex = /^[A-Za-z][A-Za-z\s]{1,}$/;
 var phoneRegex = /^(?:\+20|20|0020|0)(10|11|12|15)\d{8}$/;
@@ -40,6 +44,44 @@ if (localStorage.getItem("contactsList")) {
   contactsList = JSON.parse(localStorage.getItem("contactsList"));
   displayContacts();
 }
+
+openBtn.addEventListener("click", function(){
+  clearGradientClasses(imagePreview);
+  imagePreview.style.backgroundImage="";
+  imagePreview.classList.add("default-bg");
+  imagePreview.innerHTML=`<i class="fa-solid fa-user fs-2"></i>`
+  mode = 'add';
+  contactForm.reset();
+  openModal();
+});
+closeBtn.addEventListener("click", closeModal);
+cancelBtn.addEventListener("click", closeModal);
+modalBackdrop.addEventListener("click", closeModal);
+contactName.addEventListener("input", validateName);
+contactPhone.addEventListener("input", validatePhone);
+contactEmail.addEventListener("input", validateEmail);
+saveBtn.addEventListener("click",function(){
+  saveContact(mode);
+});
+searchInput.addEventListener("input",displayContacts);
+contactsGrid.addEventListener("click", function(e){
+  var editBtn = e.target.closest(".edit-btn");
+  if (editBtn) {
+    currentIndex = parseInt(editBtn.dataset.index);
+    console.log(currentIndex);
+    setUpFields(currentIndex);
+    return;
+  }
+
+  var deleteBtn = e.target.closest(".delete-btn");
+  if (deleteBtn) {
+    currentIndex = parseInt(deleteBtn.dataset.index);
+    console.log(currentIndex);
+    deleteContact(currentIndex);
+    return;
+  }
+});
+
 function checkContacts() {
   var html = "";
   if (contactsList.length < 1) {
@@ -67,14 +109,13 @@ function displayContacts() {
   displayEmergency();
   document.getElementById("contactsNumber").textContent = contactsList.length;
   document.getElementById("totalValue").textContent = contactsList.length;
-  var searchInput = document.getElementById("searchInput").value;
   var html = ``;
   for (var i = 0; i < contactsList.length; i++) {
     if (
-      contactsList[i].name.toLowerCase().includes(searchInput.toLowerCase()) ||
-      contactsList[i].phone.includes(searchInput.toLowerCase()) ||
+      contactsList[i].name.toLowerCase().includes(searchInput.value.toLowerCase()) ||
+      contactsList[i].phone.includes(searchInput.value.toLowerCase()) ||
       (contactsList[i].email &&
-        contactsList[i].email.toLowerCase().includes(searchInput.toLowerCase()))
+        contactsList[i].email.toLowerCase().includes(searchInput.value.toLowerCase()))
     ) {
       var favoriteBtn = contactsList[i].isFavorite
         ? `<button class="action-btn bg-transparent rounded-3 favorites-btn favorites-selected" onclick="toggleFavorites(${i})">
@@ -152,7 +193,7 @@ function displayContacts() {
         <div class="position-relative">
           <div class="avatar-gradient ${
             contactsList[i].gradient
-          } overflow-hidden">
+          } overflow-hidden ">
           ${
             contactsList[i].image
               ? `<img src="${contactsList[i].image}" class="w-100 h-100 object-fit-cover" />`
@@ -205,10 +246,10 @@ function displayContacts() {
       <div class="d-flex gap-3">
         ${favoriteBtn}
         ${emergencyBtn}
-        <button class="action-btn bg-transparent rounded-3 edit-btn" onclick="setUpFields(${i})">
+        <button class="action-btn bg-transparent rounded-3 edit-btn" id="updateBtn" data-index="${i}">
           <i class="fa-solid fa-pen small text-muted"></i>
         </button>
-        <button class="action-btn rounded-3 bg-transparent delete-btn" onclick="deleteContact(${i})">
+        <button class="action-btn rounded-3 bg-transparent delete-btn" id="deleteBtn" data-index="${i}">
           <i class="fa-solid fa-trash small text-muted"></i>
         </button>
       </div>
@@ -326,7 +367,6 @@ function displayEmergency() {
 }
 function saveContact(term) {
   contactImage = document.getElementById("imageInput");
-
   var name = contactName.value;
   var phone = contactPhone.value;
   var email = contactEmail.value;
@@ -349,19 +389,6 @@ function saveContact(term) {
     imagePath = contactsList[currentIndex].image;
   }
 
-  var contact = {
-    name: name,
-    phone: phone,
-    email: email,
-    address: address,
-    notes: notes,
-    group: group,
-    avatar: avatar,
-    image: imagePath,
-    isFavorite: isFavorite,
-    isEmergency: isEmergency,
-    gradient: randomGradient,
-  };
   if (!name || name === "") {
     Swal.fire({
       icon: "error",
@@ -395,7 +422,7 @@ function saveContact(term) {
     });
     return;
   }
-  if (!checkPhone(phone)) {
+  if (term == 'add' && !checkPhone(phone)) {
   Swal.fire({
     icon: "error",
     title: "Duplicate Phone Number",
@@ -405,7 +432,32 @@ function saveContact(term) {
   });
   showError(contactPhone, phoneError);
   return;
-}
+  }
+  if (term == 'update' && !checkPhone(phone,currentIndex)) {
+  Swal.fire({
+    icon: "error",
+    title: "Duplicate Phone Number",
+    text: "This phone number already exists in your contacts.",
+    timer: 2000,
+    confirmButtonColor: "#7c3aed",
+  });
+  showError(contactPhone, phoneError);
+  return;
+  }
+
+  var contact = {
+    name: name,
+    phone: phone,
+    email: email,
+    address: address,
+    notes: notes,
+    group: group,
+    avatar: avatar,
+    image: imagePath,
+    isFavorite: isFavorite,
+    isEmergency: isEmergency,
+    gradient: randomGradient,
+  };
 
   term == "add"
     ? contactsList.push(contact)
@@ -432,15 +484,18 @@ function saveContact(term) {
     });
   }
 }
-function checkPhone(phone) {
-  return !contactsList.some((contact, index) => {
-    if (currentIndex !== undefined && index === currentIndex) return false;
-    return contact.phone === phone;
-  });
+function checkPhone(phone,index) {
+  for (var i = 0; i < contactsList.length; i++) {
+    if(index!== undefined && i == index) continue;
+    if(contactsList[i].phone == phone){
+      return false;
+    }
+  }
+  return true;
 }
 
 function validateName() {
-  const value = contactName.value.trim();
+  var value = contactName.value.trim();
 
   if (!nameRegex.test(value)) {
     showError(contactName, nameError);
@@ -451,7 +506,7 @@ function validateName() {
 }
 
 function validatePhone() {
-  const value = contactPhone.value.trim();
+  var value = contactPhone.value.trim();
 
   if (!phoneRegex.test(value)) {
     showError(contactPhone, phoneError);
@@ -462,7 +517,7 @@ function validatePhone() {
 }
 
 function validateEmail() {
-  const value = contactEmail.value.trim();
+  var value = contactEmail.value.trim();
 
   if (value !== "" && !emailRegex.test(value)) {
     showError(contactEmail, emailError);
@@ -482,13 +537,14 @@ function hideError(input, errorText) {
   errorText.classList.add("d-none");
 }
 
-contactName.addEventListener("input", validateName);
-contactPhone.addEventListener("input", validatePhone);
-contactEmail.addEventListener("input", validateEmail);
-
-contactName.addEventListener("blur", validateName);
-contactPhone.addEventListener("blur", validatePhone);
-contactEmail.addEventListener("blur", validateEmail);
+function hideErrors(){
+  contactName.classList.remove("input-error");
+  nameError.classList.add("d-none");
+  contactPhone.classList.remove("input-error");
+  phoneError.classList.add("d-none");
+  contactEmail.classList.remove("input-error");
+  emailError.classList.add("d-none");
+}
 
 function setAvatar(name) {
   var words = name.trim().split(" ");
@@ -524,20 +580,20 @@ function deleteContact(index) {
 }
 
 function setUpFields(index) {
-  var updateBtn = `<button
-                  type="button"
-                  id="saveBtn"
-                  onclick="saveContact('update')"
-                  class="col btn save-button rounded-4 p-3 text-white fw-bold"
-                >
-                  <i class="fa-solid fa-check me-2"></i>Save Contact
-                </button>`;
+  mode = 'update';
   currentIndex = index;
   openModal();
-  if (contactsList[index].image) {
-    document.getElementById(
-      "imagePreview"
-    ).innerHTML = `<img src="${contactsList[index].image}" class="w-100 h-100 object-fit-cover" />`;
+  clearGradientClasses(imagePreview);
+  if (contactsList[index].image){
+    imagePreview.classList.remove("default-bg");
+    imagePreview.innerHTML="";
+    imagePreview.style.backgroundImage = `url("${contactsList[index].image}")`;
+  }
+  else{
+    imagePreview.classList.remove("default-bg");
+    imagePreview.style.backgroundImage="";
+    imagePreview.classList.add(`${contactsList[index].gradient}`);
+    imagePreview.innerHTML = contactsList[index].avatar;
   }
   contactName.value = contactsList[index].name;
   contactPhone.value = contactsList[index].phone;
@@ -548,7 +604,6 @@ function setUpFields(index) {
   contactFavorite.checked = contactsList[index].isFavorite;
   contactEmergency.checked = contactsList[index].isEmergency;
   document.getElementById("modalTitle").textContent = "Update Contact";
-  document.getElementById("saveBtn").outerHTML = updateBtn;
 }
 
 function toggleFavorites(index) {
@@ -561,21 +616,16 @@ function toggleEmergency(index) {
   localStorage.setItem("contactsList", JSON.stringify(contactsList));
   displayContacts();
 }
+function clearGradientClasses(element) {
+  gradientClasses.forEach(cls => element.classList.remove(cls));
+}
 function openModal() {
   contactModal.classList.remove("d-none");
-
-  contactForm.reset();
+  hideErrors();
   document.getElementById("modalTitle").textContent = "Add New Contact";
-  document.getElementById(
-    "imagePreview"
-  ).innerHTML = `<i class="fa-solid fa-user fs-2"></i>`;
+  
 }
-
 function closeModal() {
   contactModal.classList.add("d-none");
+  document.getElementById('imageInput').value = '';
 }
-
-openBtn.addEventListener("click", openModal);
-closeBtn.addEventListener("click", closeModal);
-cancelBtn.addEventListener("click", closeModal);
-modalBackdrop.addEventListener("click", closeModal);

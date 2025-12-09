@@ -69,22 +69,22 @@ i {
   height: 48px;
 }
 .blue-icon {
-  background: linear-gradient(to bottom right, #3b82f6, #2563eb);
+  background-image: linear-gradient(to bottom right, #3b82f6, #2563eb);
   box-shadow: 0 5px 14px rgba(59, 130, 246, 0.25);
 }
 .yellow-icon {
-  background: linear-gradient(to bottom right, #fbbf24, #f97316);
+  background-image: linear-gradient(to bottom right, #fbbf24, #f97316);
   box-shadow: 0 5px 14px rgba(251, 191, 36, 0.25);
 }
 .red-icon {
-  background: linear-gradient(to bottom right, #f43f5e, #dc2626);
+  background-image: linear-gradient(to bottom right, #f43f5e, #dc2626);
   box-shadow: 0 5px 14px rgba(244, 63, 94, 0.25);
 }
 .yellow-bg {
-  background: linear-gradient(to right, #fff7e6, #fff0d6);
+  background-image: linear-gradient(to right, #fff7e6, #fff0d6);
 }
 .red-bg {
-  background: linear-gradient(to right, #ffe4e9, #ffd8dc);
+  background-image: linear-gradient(to right, #ffe4e9, #ffd8dc);
 }
 .search-icon {
   position: absolute;
@@ -118,7 +118,7 @@ i {
 .modal-blur {
   position: fixed;
   inset: 0;
-  background: rgba(17, 24, 39, 0.6);
+  background-color: rgba(17, 24, 39, 0.6);
   backdrop-filter: blur(6px);
 }
 .modal-card {
@@ -129,34 +129,39 @@ i {
 .close-button {
   width: 38px;
   height: 38px;
-  background: none;
+  background-color: none;
   color: #9ca3af;
   transition: all 0.3s;
   cursor: pointer;
 }
 .close-button:hover {
-  background: #f3f4f6;
+  background-color: #f3f4f6;
   color: #4b5563;
 }
 .image-preview {
   width: 96px;
   height: 96px;
-  background: linear-gradient(to bottom right, #51a2ff, #155dfc);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.default-bg{
+  background-image: linear-gradient(to bottom right, #51a2ff, #155dfc);
 }
 .image-btn {
-  background: #f3f4f6;
+  background-color: #f3f4f6;
   cursor: pointer;
   transition: 0.2s;
 }
 .image-btn:hover {
-  background: #e5e7eb;
+  background-color: #e5e7eb;
 }
 .form-input {
-  background: #f9fafb;
+  background-color: #f9fafb;
   border: 1px solid #e5e7eb;
 }
 .form-input:focus {
-  background: white;
+  background-color: white;
   border-color: #7c3aed;
   box-shadow: 0 0 0 0.15rem rgba(124, 58, 237, 0.25);
 }
@@ -170,6 +175,10 @@ i {
   font-size: 0.75rem;
   margin-top: 0.3rem;
 }
+.input-error {
+  border-color: #e11d48 !important;
+  box-shadow: 0 0 0 0.2rem rgba(225, 29, 72, 0.25) !important;
+}
 .check-input {
   outline: none;
   width: 1.25rem;
@@ -177,7 +186,7 @@ i {
   cursor: pointer;
 }
 .save-button {
-  background: linear-gradient(to right, #7c3aed, #4f46e5);
+  background-image: linear-gradient(to right, #7c3aed, #4f46e5);
   transition: 0.25s;
 }
 .save-button:hover {
@@ -205,7 +214,7 @@ textarea {
   position: relative;
 }
 .bg-purple-gradient {
-  background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+  background-image: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
   box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
 }
 .fav-badge {
@@ -335,28 +344,28 @@ textarea {
   font-size: 0.75rem;
 }
 .gradient-color-0 {
-  background: linear-gradient(to bottom right, #3b82f6, #2563eb) !important;
+  background-image: linear-gradient(to bottom right, #3b82f6, #2563eb) !important;
 }
 .gradient-color-1 {
-  background: linear-gradient(to bottom right, #8b5cf6, #7c3aed) !important;
+  background-image: linear-gradient(to bottom right, #8b5cf6, #7c3aed) !important;
 }
 .gradient-color-2 {
-  background: linear-gradient(to bottom right, #10b981, #0d9488) !important;
+  background-image: linear-gradient(to bottom right, #10b981, #0d9488) !important;
 }
 .gradient-color-3 {
-  background: linear-gradient(to bottom right, #f43f5e, #db2777) !important;
+  background-image: linear-gradient(to bottom right, #f43f5e, #db2777) !important;
 }
 .gradient-color-4 {
-  background: linear-gradient(to bottom right, #f59e0b, #f97316) !important;
+  background-image: linear-gradient(to bottom right, #f59e0b, #f97316) !important;
 }
 .gradient-color-5 {
-  background: linear-gradient(to bottom right, #06b6d4, #3b82f6) !important;
+  background-image: linear-gradient(to bottom right, #06b6d4, #3b82f6) !important;
 }
 .gradient-color-6 {
-  background: linear-gradient(to bottom right, #6366f1, #7c3aed) !important;
+  background-image: linear-gradient(to bottom right, #6366f1, #7c3aed) !important;
 }
 .gradient-color-7 {
-  background: linear-gradient(to bottom right, #d946ef, #db2777) !important;
+  background-image: linear-gradient(to bottom right, #d946ef, #db2777) !important;
 }
 .favorites-selected {
   background-color: #fffbeb !important;
@@ -385,7 +394,7 @@ textarea {
 .contact-avatar {
   width: 40px;
   height: 40px;
-  background: linear-gradient(to bottom right, #06b6d4, #2563eb);
+  background-image: linear-gradient(to bottom right, #06b6d4, #2563eb);
   font-size: 0.875rem;
 }
 .favorites-card .call-btn {
