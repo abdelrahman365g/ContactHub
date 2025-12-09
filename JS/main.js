@@ -1,26 +1,26 @@
-var contactModal = document.getElementById("contactModal");
-var modalBackdrop = document.getElementById("modalBackdrop");
-var openBtn = document.getElementById("addBtn");
-var closeBtn = document.getElementById("closeBtn");
-var cancelBtn = document.getElementById("cancelBtn");
-var contactForm = document.getElementById("contactForm");
-var contactsGrid = document.getElementById("contacts-grid");
+var contactModal = document.querySelector("#contactModal");
+var modalBackdrop = document.querySelector("#modalBackdrop");
+var openBtn = document.querySelector("#addBtn");
+var closeBtn = document.querySelector("#closeBtn");
+var cancelBtn = document.querySelector("#cancelBtn");
+var contactForm = document.querySelector("#contactForm");
+var contactsGrid = document.querySelector("#contacts-grid");
 var saveBtn = document.querySelector("#saveBtn");
-var searchInput = document.getElementById("searchInput");
-var imagePreview = document.getElementById("imagePreview");
+var searchInput = document.querySelector("#searchInput");
+var imagePreview = document.querySelector("#imagePreview");
 
-var contactName = document.getElementById("contactName");
-var contactPhone = document.getElementById("contactPhone");
-var contactEmail = document.getElementById("contactEmail");
-var contactAddress = document.getElementById("contactAddress");
-var contactGroup = document.getElementById("contactGroup");
-var contactNotes = document.getElementById("contactNotes");
-var contactFavorite = document.getElementById("contactFavorite");
-var contactEmergency = document.getElementById("contactEmergency");
-var contactImage = document.getElementById("contactImage");
-var nameError = document.getElementById("contactNameError");
-var phoneError = document.getElementById("contactPhoneError");
-var emailError = document.getElementById("contactEmailError");
+var contactName = document.querySelector("#contactName");
+var contactPhone = document.querySelector("#contactPhone");
+var contactEmail = document.querySelector("#contactEmail");
+var contactAddress = document.querySelector("#contactAddress");
+var contactGroup = document.querySelector("#contactGroup");
+var contactNotes = document.querySelector("#contactNotes");
+var contactFavorite = document.querySelector("#contactFavorite");
+var contactEmergency = document.querySelector("#contactEmergency");
+var contactImage = document.querySelector("#contactImage");
+var nameError = document.querySelector("#contactNameError");
+var phoneError = document.querySelector("#contactPhoneError");
+var emailError = document.querySelector("#contactEmailError");
 var mode ;
 
 var nameRegex = /^[A-Za-z][A-Za-z\s]{1,}$/;
@@ -95,7 +95,7 @@ function checkContacts() {
             </div>
     `;
     contactsGrid.innerHTML = html;
-    document.getElementById("totalValue").textContent = contactsList.length;
+    document.querySelector("#totalValue").textContent = contactsList.length;
     displayFavorites();
     displayEmergency();
   } else {
@@ -107,8 +107,8 @@ checkContacts();
 function displayContacts() {
   displayFavorites();
   displayEmergency();
-  document.getElementById("contactsNumber").textContent = contactsList.length;
-  document.getElementById("totalValue").textContent = contactsList.length;
+  document.querySelector("#contactsNumber").textContent = contactsList.length;
+  document.querySelector("#totalValue").textContent = contactsList.length;
   var html = ``;
   for (var i = 0; i < contactsList.length; i++) {
     if (
@@ -262,13 +262,13 @@ function displayContacts() {
   contactsGrid.innerHTML = html;
 }
 function displayFavorites() {
-  var favoritesContainer = document.getElementById("favoritesContainer");
+  var favoritesContainer = document.querySelector("#favoritesContainer");
   var favoritesNumber = 0;
   var favoriteshtml = "";
   var favorites = contactsList.filter((contact) => contact.isFavorite);
   if (favorites.length == 0) {
     favoritesContainer.classList.remove("fit-height");
-    document.getElementById("favoritesValue").textContent = favoritesNumber;
+    document.querySelector("#favoritesValue").textContent = favoritesNumber;
     favoritesContainer.innerHTML = `
     <div class="h-100 d-flex justify-content-center align-items-center">
   <p class="text-secondary">No favorites yet</p>
@@ -311,17 +311,17 @@ function displayFavorites() {
   }
   favoritesContainer.innerHTML = favoriteshtml;
   favoritesContainer.classList.add("fit-height");
-  document.getElementById("favoritesValue").textContent = favoritesNumber;
+  document.querySelector("#favoritesValue").textContent = favoritesNumber;
 }
 
 function displayEmergency() {
-  var emergencyContainer = document.getElementById("emergencyContainer");
+  var emergencyContainer = document.querySelector("#emergencyContainer");
   var emergencyNumber = 0;
   var emergencyhtml = "";
   var emergency = contactsList.filter((contact) => contact.isEmergency);
   if (emergency.length == 0) {
     emergencyContainer.classList.remove("fit-height");
-    document.getElementById("emergencyValue").textContent = emergencyNumber;
+    document.querySelector("#emergencyValue").textContent = emergencyNumber;
     emergencyContainer.innerHTML = `
     <div class="h-100 d-flex justify-content-center align-items-center">
   <p class="text-secondary">No emergency contacts</p>
@@ -363,10 +363,10 @@ function displayEmergency() {
   }
   emergencyContainer.innerHTML = emergencyhtml;
   emergencyContainer.classList.add("fit-height");
-  document.getElementById("emergencyValue").textContent = emergencyNumber;
+  document.querySelector("#emergencyValue").textContent = emergencyNumber;
 }
 function saveContact(term) {
-  contactImage = document.getElementById("imageInput");
+  contactImage = document.querySelector("#imageInput");
   var name = contactName.value;
   var phone = contactPhone.value;
   var email = contactEmail.value;
@@ -603,7 +603,7 @@ function setUpFields(index) {
   contactGroup.value = contactsList[index].group;
   contactFavorite.checked = contactsList[index].isFavorite;
   contactEmergency.checked = contactsList[index].isEmergency;
-  document.getElementById("modalTitle").textContent = "Update Contact";
+  document.querySelector("#modalTitle").textContent = "Update Contact";
 }
 
 function toggleFavorites(index) {
@@ -622,10 +622,10 @@ function clearGradientClasses(element) {
 function openModal() {
   contactModal.classList.remove("d-none");
   hideErrors();
-  document.getElementById("modalTitle").textContent = "Add New Contact";
+  document.querySelector("#modalTitle").textContent = "Add New Contact";
   
 }
 function closeModal() {
   contactModal.classList.add("d-none");
-  document.getElementById('imageInput').value = '';
+  document.querySelector('#imageInput').value = '';
 }
