@@ -230,12 +230,26 @@
                   <i class="fa-solid fa-user fs-2"></i>
                 </div>
 
-                <label
-                  class="image-btn py-2 px-3 rounded-3 small text-secondary"
-                >
-                  <i class="fa-solid fa-camera"></i> Change Photo
-                  <input type="file" id="imageInput" accept="image/*" hidden />
-                </label>
+                <div class="d-flex gap-2">
+                  <label
+                    class="image-btn py-2 px-3 rounded-3 small text-secondary"
+                  >
+                    <i class="fa-solid fa-camera"></i> Change Photo
+                    <input
+                      type="file"
+                      id="imageInput"
+                      accept="image/*"
+                      hidden
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    class="action-btn rounded-3 bg-transparent delete-btn d-none"
+                    id="deleteImage"
+                  >
+                    <i class="fa-solid fa-trash small text-muted"></i>
+                  </button>
+                </div>
               </div>
 
               <div>

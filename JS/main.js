@@ -8,7 +8,7 @@ var contactsGrid = document.querySelector("#contacts-grid");
 var saveBtn = document.querySelector("#saveBtn");
 var searchInput = document.querySelector("#searchInput");
 var imagePreview = document.querySelector("#imagePreview");
-
+var deleteImageBtn = document.querySelector("#deleteImage");
 var contactName = document.querySelector("#contactName");
 var contactPhone = document.querySelector("#contactPhone");
 var contactEmail = document.querySelector("#contactEmail");
@@ -17,12 +17,13 @@ var contactGroup = document.querySelector("#contactGroup");
 var contactNotes = document.querySelector("#contactNotes");
 var contactFavorite = document.querySelector("#contactFavorite");
 var contactEmergency = document.querySelector("#contactEmergency");
-var contactImage = document.querySelector("#contactImage");
+var contactImage = document.querySelector("#imageInput");
 var nameError = document.querySelector("#contactNameError");
 var phoneError = document.querySelector("#contactPhoneError");
 var emailError = document.querySelector("#contactEmailError");
 var mode ;
 var currentIndex;
+var deleteImageFlag = false;
 
 var nameRegex = /^[A-Za-z][A-Za-z\s]{1,}$/;
 var phoneRegex = /^(?:\+20|20|0020|0)(10|11|12|15)\d{8}$/;
@@ -49,7 +50,7 @@ openBtn.addEventListener("click", function(){
   clearGradientClasses(imagePreview);
   imagePreview.style.backgroundImage="";
   imagePreview.classList.add("default-bg");
-  imagePreview.innerHTML=`<i class="fa-solid fa-user fs-2"></i>`
+  imagePreview.innerHTML=`<i class="fa-solid fa-user fs-2"></i>`;
   mode = 'add';
   contactForm.reset();
   openModal();
@@ -79,7 +80,20 @@ contactsGrid.addEventListener("click", function(e){
     return;
   }
 });
-
+contactImage.addEventListener("change",function(){
+  imagePreview.classList.remove("default-bg");
+  clearGradientClasses(imagePreview);
+  imagePreview.innerHTML="";
+  imagePreview.style.backgroundImage = `url("images/${contactImage.files[0].name}")`;
+  deleteImageBtn.classList.remove("d-none");
+})
+deleteImageBtn.addEventListener("click",function(){
+  imagePreview.style.backgroundImage="";
+  imagePreview.classList.add("default-bg");
+  imagePreview.innerHTML=`<i class="fa-solid fa-user fs-2"></i>`;
+  document.querySelector('#imageInput').value = '';
+  deleteImageFlag = true;
+})
 function checkContacts() {
   var html = "";
   if (contactsList.length < 1) {
@@ -364,7 +378,6 @@ function displayEmergency() {
   document.querySelector("#emergencyValue").textContent = emergencyNumber;
 }
 function saveContact(term) {
-  contactImage = document.querySelector("#imageInput");
   var name = contactName.value;
   var phone = contactPhone.value;
   var email = contactEmail.value;
@@ -383,7 +396,9 @@ function saveContact(term) {
   var imagePath;
   if (contactImage.files && contactImage.files.length > 0) {
     imagePath = `images/${contactImage.files[0].name}`;
-  } else if (term === "update") {
+  }else if(deleteImageFlag){
+    imagePath=null;
+  }else if (term === "update") {
     imagePath = contactsList[currentIndex].image;
   }
 
@@ -576,16 +591,21 @@ function deleteContact(index) {
     }
   });
 }
+function deleteImage(){
+
+}
 
 function setUpFields(index) {
   mode = 'update';
   currentIndex = index;
+  deleteImageFlag = false;
   openModal();
   clearGradientClasses(imagePreview);
   if (contactsList[index].image){
     imagePreview.classList.remove("default-bg");
     imagePreview.innerHTML="";
     imagePreview.style.backgroundImage = `url("${contactsList[index].image}")`;
+    deleteImageBtn.classList.remove("d-none");
   }
   else{
     imagePreview.classList.remove("default-bg");
@@ -626,4 +646,5 @@ function openModal() {
 function closeModal() {
   contactModal.classList.add("d-none");
   document.querySelector('#imageInput').value = '';
+  deleteImageBtn.classList.add("d-none");
 }
