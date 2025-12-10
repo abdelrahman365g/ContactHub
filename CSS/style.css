@@ -434,3 +434,6 @@ textarea {
 #contacts-grid .col{
   align-self: stretch;
 }
+.swal2-icon *, .swal2-icon {
+  box-sizing: initial !important;
+}

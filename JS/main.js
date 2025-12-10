@@ -93,6 +93,7 @@ deleteImageBtn.addEventListener("click",function(){
   imagePreview.innerHTML=`<i class="fa-solid fa-user fs-2"></i>`;
   document.querySelector('#imageInput').value = '';
   deleteImageFlag = true;
+  deleteImageBtn.classList.add("d-none");
 })
 function checkContacts() {
   var html = "";
@@ -107,6 +108,7 @@ function checkContacts() {
             </div>
     `;
     contactsGrid.innerHTML = html;
+    document.querySelector("#contactsNumber").textContent = contactsList.length;
     document.querySelector("#totalValue").textContent = contactsList.length;
     displayFavorites();
     displayEmergency();
@@ -430,7 +432,7 @@ function saveContact(term) {
       icon: "error",
       title: "Validation Error",
       text: "Please fix the errors in the form before saving.",
-      timer: 1000,
+      timer: 2000,
       confirmButtonColor: "#7c3aed",
     });
     return;
@@ -483,7 +485,7 @@ function saveContact(term) {
       icon: "success",
       title: "Contact Added!",
       text: `${name} has been added to your contacts.`,
-      timer: 1500,
+      timer: 2000,
       showConfirmButton: false,
     });
   } else if(term == 'update') {
@@ -492,7 +494,7 @@ function saveContact(term) {
       title: "Contact Updated!",
       text: `${name} has been updated successfully.`,
       icon: "success",
-      timer: 1500,
+      timer: 2000,
       showConfirmButton: false,
     });
   }
@@ -585,7 +587,7 @@ function deleteContact(index) {
         icon: "success",
         title: "Deleted!",
         text: "Contact has been deleted.",
-        timer: 1500,
+        timer: 2000,
         showConfirmButton: false,
       });
     }
