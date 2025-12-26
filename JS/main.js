@@ -593,9 +593,6 @@ function deleteContact(index) {
     }
   });
 }
-function deleteImage(){
-
-}
 
 function setUpFields(index) {
   mode = 'update';
